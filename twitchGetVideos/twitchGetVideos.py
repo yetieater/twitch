@@ -38,6 +38,12 @@ def parseResponse(response):
 		print(response.status_code)
 		print(response.text)
 
+def parseTime(time):
+    return datetime.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S%z')
+
+def returnTimestamp(time):
+    return datetime.datetime.timestamp(time)
+
 def jsonToDataframe(json):
 	#return pd.DataFrame.from_dict(json['data'])
 	return pd.DataFrame.from_dict(json)
@@ -62,10 +68,13 @@ elif mode == "short":
 
 df = jsonToDataframe(jsonData)
 
+# convert created_at values into timestamps
 # created_at values look like '2019-02-10T22:31:51Z'
+df['created_at_dt'] = pd.to_datetime(df['created_at'], yearfirst=True)
+df['created_at_unix_epoch'] = pd.DataFrame(df['created_at_dt']).applymap(returnTimestamp)
 
 # Fields of Interest
-fieldsOfInterest = ['created_at', 'duration', 'id', 'title']
+fieldsOfInterest = ['created_at_unix_epoch', 'duration', 'id', 'title']
 
 dfFOI = df[fieldsOfInterest]
 
